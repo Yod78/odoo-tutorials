@@ -7,9 +7,9 @@ class EstateProperty(models.Model):
     _name = "estate_property"
     _description = "Estate Tuto"
 
-    name = fields.Char('Title', required=True, translate=True)
-    description = fields.Text('Description',required=True, translate=True)
-    postcode = fields.Char('Postcode', required=True, translate=True)
+    name = fields.Char('Title', required=True)
+    description = fields.Text('Description',required=True)
+    postcode = fields.Char('Postcode', required=True)
     date_availability = fields.Date('Available From',copy=False,
                                     default=fields.Date.today()+timedelta(days=90))
     expected_price = fields.Float('Expected Price',required=True)
