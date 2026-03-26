@@ -1,6 +1,7 @@
 
-from odoo import fields, models
+from odoo import fields, models, api
 from datetime import timedelta
+
 
 class EstateProperty(models.Model):
     _name = "estate_property"
@@ -12,6 +13,7 @@ class EstateProperty(models.Model):
     date_availability = fields.Date('Available From',copy=False,
                                     default=fields.Date.today()+timedelta(days=90))
     expected_price = fields.Float('Expected Price',required=True)
+    best_price = fields.Float(compute="_get_best_price")
     selling_price = fields.Float('Selling Price',required=False, readonly=True, copy=False)
     bedrooms = fields.Integer('Bedrooms', required=True, default=2)
     living_area = fields.Integer('Living area (sqm)', required=True)
@@ -37,3 +39,24 @@ class EstateProperty(models.Model):
     partner_id = fields.Many2one("res.partner", string="Buyer", copy=False)
     tag_ids = fields.Many2many("estate_property_tag", string="Tags")
     offer_ids = fields.One2many("estate_property_offer","property_id","Offer")
+    total_area = fields.Integer(compute="_compute_total_area", readonly=True)
+
+
+    @api.depends("living_area","garden_area")
+    def _compute_total_area(self):
+        for p in self:
+            p.total_area = p.living_area + p.garden_area
+
+    @api.depends("offer_ids.price")
+    def _get_best_price(self):
+        for p in self:
+            p.best_price = max(p.offer_ids.mapped("price"), default=0)
+
+    @api.onchange("garden")
+    def _onchange_garden(self):
+        if self.garden:
+            self.garden_area = 10
+            self.garden_orientation = "north"
+        else:
+            self.garden_area = 0
+            self.garden_orientation = ""
