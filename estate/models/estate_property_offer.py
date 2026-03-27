@@ -15,7 +15,7 @@ class EstatePropertyOffer(models.Model):
         string="Status",
         selection=[('accepted','Accepted'),('refused','Refused')],
         copy=False,
-        readonly=False
+        readonly=True
     )
     partner_id = fields.Many2one("res.partner",string="Buyer",required=True)
     property_id = fields.Many2one("estate_property",string="Property",required=True)
@@ -63,3 +63,8 @@ class EstatePropertyOffer(models.Model):
 
         self.status = "refused"
         return True
+
+    _check_price = models.Constraint(
+        'CHECK(price > 0)',
+        'An offer price must be strictly positive',
+    )
