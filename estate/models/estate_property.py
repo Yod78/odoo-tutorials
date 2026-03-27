@@ -2,6 +2,8 @@
 from odoo import fields, models, api
 from datetime import timedelta
 
+from odoo.exceptions import UserError
+
 
 class EstateProperty(models.Model):
     _name = "estate_property"
@@ -29,14 +31,15 @@ class EstateProperty(models.Model):
     state = fields.Selection(
         string='Status',
         selection=[('new','New'),('offer_received','Offer Received'),('offer_accepted','Offer Accepted'),
-                   ('sold','Sold'),('cancelled','Cancelled')],
+                   ('sold','Sold'),('canceled','Canceled')],
         required=True,
         copy=False,
-        default='new'
+        default='new',
+        readonly=True
     )
     property_type_id = fields.Many2one("estate_property_type", string="Property Type")
     user_id = fields.Many2one("res.users",string="Salesman",default=lambda self: self.env.uid)
-    partner_id = fields.Many2one("res.partner", string="Buyer", copy=False)
+    partner_id = fields.Many2one("res.partner", string="Buyer", copy=False, readonly=True)
     tag_ids = fields.Many2many("estate_property_tag", string="Tags")
     offer_ids = fields.One2many("estate_property_offer","property_id","Offer")
     total_area = fields.Integer(compute="_compute_total_area", readonly=True)
@@ -60,3 +63,18 @@ class EstateProperty(models.Model):
         else:
             self.garden_area = 0
             self.garden_orientation = ""
+
+
+    def sold_property(self)->bool:
+        if self.state == "canceled":
+            raise UserError("A canceled property cannot be sold")
+
+        self.state = "sold"
+        return True
+
+    def cancel_property(self)->bool:
+        if self.state == "sold":
+            raise UserError("A sold property cannot be canceled")
+
+        self.state = "canceled"
+        return True
