@@ -7,7 +7,7 @@ _logger = logging.getLogger(__name__)
 class EstatePropertyOffer(models.Model):
     _name = "estate_property_offer"
     _description = "Estate Property Offer"
-
+    _order = "price desc"
 
 
     price = fields.Float(string="Price")
@@ -55,6 +55,7 @@ class EstatePropertyOffer(models.Model):
         self.status = "accepted"
         self.property_id.selling_price = self.price
         self.property_id.partner_id = self.partner_id
+        self.property_id.state = "offer_accepted"
         return True
 
     def refuse_offer(self)->bool:
@@ -68,3 +69,4 @@ class EstatePropertyOffer(models.Model):
         'CHECK(price > 0)',
         'An offer price must be strictly positive',
     )
+

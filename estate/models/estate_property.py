@@ -9,6 +9,7 @@ from odoo.tools import float_compare
 class EstateProperty(models.Model):
     _name = "estate_property"
     _description = "Estate Tuto"
+    _order = "id desc"
 
     name = fields.Char('Title', required=True)
     description = fields.Text('Description',required=True)
@@ -84,7 +85,7 @@ class EstateProperty(models.Model):
     def _check_prices(self):
         for p in self:
             min_amount = p.expected_price * 90 / 100
-            if float_compare(p.selling_price,min_amount,2) == -1:
+            if float_compare(p.selling_price,min_amount,2) == -1 and p.offer_ids.status == "accepted":
                 raise ValidationError("Selling price cannot be lower than 90% of the expected price.")
 
 
