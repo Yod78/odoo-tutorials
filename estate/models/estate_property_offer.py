@@ -2,6 +2,7 @@ from odoo import fields, models, api
 from datetime import timedelta
 from odoo.exceptions import UserError
 import logging
+
 _logger = logging.getLogger(__name__)
 
 class EstatePropertyOffer(models.Model):
@@ -72,3 +73,15 @@ class EstatePropertyOffer(models.Model):
         'An offer price must be strictly positive',
     )
 
+    @api.model
+    def create(self, vals_list):
+        for vals in vals_list:
+            property = self.env["estate_property"].browse(vals["property_id"])
+            if vals["price"] < property.best_price:
+                raise UserError(f"You cannot add an offer lower than {property.best_price}")
+
+        offers = super().create(vals_list)
+        for offer in offers:
+            if offer.property_id.state == "new":
+                offer.property_id.state = "offer_received"
+        return offers

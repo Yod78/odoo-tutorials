@@ -32,7 +32,7 @@
                     <notebook>
                         <page string="Properties">
                              <field name="property_ids">
-                                 <list dedefault_order="expected_price desc">
+                                 <list default_order="expected_price desc">
                                      <field name="name"/>
                                      <field name="expected_price"/>
                                      <field name="state"/>
