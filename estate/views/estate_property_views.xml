@@ -24,7 +24,7 @@
                 <field name="name"/>
                 <field name="postcode"/>
                 <field name="bedrooms"/>
-                <field name="living_area" filter_domain="[('living_area', '=like', self)]"/>
+                <field name="living_area" filter_domain="[('living_area', '>=', self)]"/>
                 <field name="expected_price"/>
                 <field name="selling_price"/>
                 <separator/>
