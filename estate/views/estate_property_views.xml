@@ -3,7 +3,7 @@
 <data>
     <record id="estate_property_action" model="ir.actions.act_window">
         <field name="name">Properties</field>
-        <field name="res_model">estate_property</field>
+        <field name="res_model">estate.property</field>
         <field name="view_mode">list,form</field>
         <field name="context">{'search_default_available': True}</field>
         <field name="help" type="html">
@@ -18,7 +18,7 @@
     </record>
     <record id="estate_property_search" model="ir.ui.view">
         <field name="name">estate_property_search</field>
-        <field name="model">estate_property</field>
+        <field name="model">estate.property</field>
         <field name="arch" type="xml">
             <search string="Properties">
                 <field name="name"/>
@@ -34,7 +34,7 @@
     </record>
     <record id="estate_property_list" model="ir.ui.view">
         <field name="name">estate_list</field>
-        <field name="model">estate_property</field>
+        <field name="model">estate.property</field>
         <field name="arch" type="xml">
             <list decoration-success="state in ('offer_received','offer_accepted')" decoration-bf="state == 'offer_accepted'"
             decoration-muted="state == 'sold'" decoration-danger="state == 'canceled'">
@@ -50,7 +50,7 @@
     </record>
     <record id="estate_property_form" model="ir.ui.view">
         <field name="name">estate_form</field>
-        <field name="model">estate_property</field>
+        <field name="model">estate.property</field>
         <field name="arch" type="xml">
             <form string="Property">
                 <header>

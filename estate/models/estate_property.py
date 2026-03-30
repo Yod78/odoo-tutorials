@@ -4,10 +4,12 @@ from datetime import timedelta
 
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import float_compare
+import logging
 
+_logger = logging.getLogger(__name__)
 
 class EstateProperty(models.Model):
-    _name = "estate_property"
+    _name = "estate.property"
     _description = "Estate Tuto"
     _order = "id desc"
 
@@ -39,11 +41,11 @@ class EstateProperty(models.Model):
         default='new',
         readonly=True
     )
-    property_type_id = fields.Many2one("estate_property_type", string="Property Type")
+    property_type_id = fields.Many2one("estate.property.type", string="Property Type")
     user_id = fields.Many2one("res.users",string="Salesman",default=lambda self: self.env.uid)
     partner_id = fields.Many2one("res.partner", string="Buyer", copy=False, readonly=True)
-    tag_ids = fields.Many2many("estate_property_tag", string="Tags")
-    offer_ids = fields.One2many("estate_property_offer","property_id","Offer")
+    tag_ids = fields.Many2many("estate.property.tag", string="Tags")
+    offer_ids = fields.One2many("estate.property.offer","property_id","Offer")
     total_area = fields.Integer(compute="_compute_total_area", readonly=True)
 
 
@@ -68,6 +70,7 @@ class EstateProperty(models.Model):
 
 
     def sold_property(self)->bool:
+
         if self.state == "canceled":
             raise UserError("A canceled property cannot be sold")
 

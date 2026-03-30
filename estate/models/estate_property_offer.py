@@ -6,7 +6,7 @@ import logging
 _logger = logging.getLogger(__name__)
 
 class EstatePropertyOffer(models.Model):
-    _name = "estate_property_offer"
+    _name = "estate.property.offer"
     _description = "Estate Property Offer"
     _order = "price desc"
 
@@ -19,7 +19,7 @@ class EstatePropertyOffer(models.Model):
         readonly=True
     )
     partner_id = fields.Many2one("res.partner",string="Buyer",required=True)
-    property_id = fields.Many2one("estate_property",string="Property",required=True)
+    property_id = fields.Many2one("estate.property",string="Property",required=True)
     validity = fields.Integer(string="Validity (days)",default=7)
     date_deadline = fields.Date(string="Deadline",compute="_compute_deadline", inverse="_inverse_deadline",
                                 readonly=False)
@@ -76,7 +76,7 @@ class EstatePropertyOffer(models.Model):
     @api.model
     def create(self, vals_list):
         for vals in vals_list:
-            property = self.env["estate_property"].browse(vals["property_id"])
+            property = self.env["estate.property"].browse(vals["property_id"])
             if vals["price"] < property.best_price:
                 raise UserError(f"You cannot add an offer lower than {property.best_price}")
 
