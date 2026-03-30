@@ -70,11 +70,14 @@ class EstateProperty(models.Model):
 
 
     def sold_property(self)->bool:
+        if self.state in ('new','offer_received'):
+            raise UserError("You have to accept an offer in order to sell the property")
 
         if self.state == "canceled":
             raise UserError("A canceled property cannot be sold")
 
-        self.state = "sold"
+        if self.state == "offer_accepted":
+            self.state = "sold"
         return True
 
     def cancel_property(self)->bool:
@@ -88,8 +91,10 @@ class EstateProperty(models.Model):
     def _check_prices(self):
         for p in self:
             min_amount = p.expected_price * 90 / 100
-            if float_compare(p.selling_price,min_amount,2) == -1 and p.offer_ids.status == "accepted":
-                raise ValidationError("Selling price cannot be lower than 90% of the expected price.")
+            for offer in p.offer_ids:
+                if offer.status == "accepted":
+                    if float_compare(p.selling_price,min_amount,2) == -1:
+                        raise ValidationError("Selling price cannot be lower than 90% of the expected price.")
 
 
     _check_expected_price = models.Constraint(
