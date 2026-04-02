@@ -1,10 +1,10 @@
+from datetime import timedelta
+import logging
 
 from odoo import fields, models, api
-from datetime import timedelta
-
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import float_compare
-import logging
+
 
 _logger = logging.getLogger(__name__)
 
@@ -19,7 +19,7 @@ class EstateProperty(models.Model):
     date_availability = fields.Date('Available From',copy=False,
                                     default=fields.Date.today()+timedelta(days=90))
     expected_price = fields.Float('Expected Price',required=True)
-    best_price = fields.Float(compute="_get_best_price")
+    best_price = fields.Float(compute="_compute_best_price")
     selling_price = fields.Float('Selling Price',required=False, readonly=True, copy=False)
     bedrooms = fields.Integer('Bedrooms', required=True, default=2)
     living_area = fields.Integer('Living area (sqm)', required=True)
@@ -48,16 +48,37 @@ class EstateProperty(models.Model):
     offer_ids = fields.One2many("estate.property.offer","property_id","Offer")
     total_area = fields.Integer(compute="_compute_total_area", readonly=True)
 
+    _check_expected_price = models.Constraint(
+        'CHECK(expected_price > 0)',
+        'A property expected price must be strictly positive',
+    )
+
+    _check_selling_price = models.Constraint(
+        'CHECK(selling_price > 0)',
+        'A property selling price must be strictly positive'
+    )
+
+    @api.depends("offer_ids.price")
+    def _compute_best_price(self):
+        for p in self:
+            p.best_price = max(p.offer_ids.mapped("price"), default=0)
+
 
     @api.depends("living_area","garden_area")
     def _compute_total_area(self):
         for p in self:
             p.total_area = p.living_area + p.garden_area
 
-    @api.depends("offer_ids.price")
-    def _get_best_price(self):
+
+    @api.constrains("selling_price","expected_price")
+    def _check_prices(self):
         for p in self:
-            p.best_price = max(p.offer_ids.mapped("price"), default=0)
+            min_amount = p.expected_price * 90 / 100
+            for offer in p.offer_ids:
+                if offer.status == "accepted":
+                    if float_compare(p.selling_price,min_amount,2) == -1:
+                        raise ValidationError("Selling price cannot be lower than 90% of the expected price.")
+
 
     @api.onchange("garden")
     def _onchange_garden(self):
@@ -86,23 +107,3 @@ class EstateProperty(models.Model):
 
         self.state = "canceled"
         return True
-
-    @api.constrains("selling_price","expected_price")
-    def _check_prices(self):
-        for p in self:
-            min_amount = p.expected_price * 90 / 100
-            for offer in p.offer_ids:
-                if offer.status == "accepted":
-                    if float_compare(p.selling_price,min_amount,2) == -1:
-                        raise ValidationError("Selling price cannot be lower than 90% of the expected price.")
-
-
-    _check_expected_price = models.Constraint(
-        'CHECK(expected_price > 0)',
-        'A property expected price must be strictly positive',
-    )
-
-    _check_selling_price = models.Constraint(
-        'CHECK(selling_price > 0)',
-        'A property selling price must be strictly positive'
-    )

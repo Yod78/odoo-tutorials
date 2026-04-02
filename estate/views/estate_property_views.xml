@@ -16,7 +16,7 @@
           </p>
         </field>
     </record>
-    <record id="estate_property_search" model="ir.ui.view">
+    <record id="estate_property_view_search" model="ir.ui.view">
         <field name="name">estate_property_search</field>
         <field name="model">estate.property</field>
         <field name="arch" type="xml">
@@ -32,7 +32,7 @@
         </search>
         </field>
     </record>
-    <record id="estate_property_list" model="ir.ui.view">
+    <record id="estate_property_view_list" model="ir.ui.view">
         <field name="name">estate_list</field>
         <field name="model">estate.property</field>
         <field name="arch" type="xml">
@@ -48,7 +48,7 @@
             </list>
         </field>
     </record>
-    <record id="estate_property_kanban_view" model="ir.ui.view">
+    <record id="estate_property_view_kanban" model="ir.ui.view">
         <field name="name">estate_property_kanban</field>
         <field name="model">estate.property</field>
         <field name="arch" type="xml">
@@ -75,7 +75,7 @@
             </kanban>
         </field>
     </record>
-    <record id="estate_property_form" model="ir.ui.view">
+    <record id="estate_property_view_form" model="ir.ui.view">
         <field name="name">estate_form</field>
         <field name="model">estate.property</field>
         <field name="arch" type="xml">

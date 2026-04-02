@@ -1,7 +1,9 @@
-from odoo import fields, models, api
 from datetime import timedelta
-from odoo.exceptions import UserError
 import logging
+
+from odoo import fields, models, api
+from odoo.exceptions import UserError
+
 
 _logger = logging.getLogger(__name__)
 
@@ -25,6 +27,10 @@ class EstatePropertyOffer(models.Model):
                                 readonly=False)
     property_type_id = fields.Many2one(related="property_id.property_type_id",store=True)
 
+    _check_price = models.Constraint(
+        'CHECK(price > 0)',
+        'An offer price must be strictly positive',
+    )
 
     @api.depends("validity")
     def _compute_deadline(self):
@@ -45,6 +51,20 @@ class EstatePropertyOffer(models.Model):
                 date = offer.create_date.date()
 
             offer.validity = (offer.date_deadline - date).days
+
+
+    @api.model
+    def create(self, vals_list):
+        for vals in vals_list:
+            property = self.env["estate.property"].browse(vals["property_id"])
+            if vals["price"] < property.best_price:
+                raise UserError(f"You cannot add an offer lower than {property.best_price}")
+
+        offers = super().create(vals_list)
+        for offer in offers:
+            if offer.property_id.state == "new":
+                offer.property_id.state = "offer_received"
+        return offers
 
 
     def accept_offer(self)->bool:
@@ -68,20 +88,4 @@ class EstatePropertyOffer(models.Model):
         self.status = "refused"
         return True
 
-    _check_price = models.Constraint(
-        'CHECK(price > 0)',
-        'An offer price must be strictly positive',
-    )
 
-    @api.model
-    def create(self, vals_list):
-        for vals in vals_list:
-            property = self.env["estate.property"].browse(vals["property_id"])
-            if vals["price"] < property.best_price:
-                raise UserError(f"You cannot add an offer lower than {property.best_price}")
-
-        offers = super().create(vals_list)
-        for offer in offers:
-            if offer.property_id.state == "new":
-                offer.property_id.state = "offer_received"
-        return offers
