@@ -1,7 +1,11 @@
 <templates xml:space="preserve">
-   <t t-name="awesome_owl.playground">
-      <div><Counter/> <Counter/></div>
-      <Card title="'Toto'" content="'Coucou'"/>
-      <Card title="'Snoopy'" content="'Superman'"/>
-   </t>
+    <t t-name="awesome_owl.playground">
+        <div>
+            <p>Sum: <t t-esc="sum.value"/></p>
+            <Counter onChange.bind="incrementSum"/>
+            <Counter onChange.bind="incrementSum"/>
+        </div>
+        <Card title="'String normale'" content="'&lt;b&gt;pas de gras&lt;/b&gt;'"/>
+        <Card title="'Markup'" content="htmlContent"/>
+    </t>
 </templates>
